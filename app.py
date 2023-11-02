@@ -1,14 +1,27 @@
+from st_audiorec import st_audiorec
 import streamlit as st
 import librosa
 import numpy as np
 import matplotlib.pyplot as plt
 
+def play_audio(file):
+    audio_bytes = open(file, "rb").read()
+    st.audio(audio_bytes, format="audio/wav")
+
 st.title("Beat Comparison App")
 
-user_audio_file = st.file_uploader("Upload your audio file", type=["wav"])
-user_bpm = st.number_input("Enter the BPM of your audio", min_value=30, step=5)
+user_bpm = st.number_input("Enter the BPM of your audio", min_value=30, step=5, key="user_bpm_input")
+wav_audio_data = st_audiorec()
+
+if wav_audio_data is not None:
+    # Provide the option to download the recorded audio
+    st.audio(wav_audio_data, format='audio/wav')
+    user_audio_file = f"user_audio_{user_bpm}BPM.wav"
+    with open(user_audio_file, "wb") as audio_file:
+        audio_file.write(wav_audio_data)
 
 ideal_audio_file = f'{user_bpm}BPM.wav'
+play_audio(ideal_audio_file)
 y1, sr1 = librosa.load(ideal_audio_file, sr=None)
 onset_frames1 = librosa.onset.onset_detect(y=y1, sr=sr1, units='frames')
 beat_time_instances1 = librosa.frames_to_time(onset_frames1, sr=sr1)
@@ -20,9 +33,10 @@ def calculate_beat_times(audio_file, bpm):
     beat_time_instances = librosa.frames_to_time(onset_frames, sr=sr)
     return beat_time_instances
 
-if user_audio_file is not None and user_bpm > 0:
-    if st.button("Calculate Result"):
-        try:
+if wav_audio_data is not None and user_bpm > 0:
+    try:
+
+        if st.button("Calculate Result"):
             user_beat_times = calculate_beat_times(user_audio_file, user_bpm)
             st.write("Ideal Beat Times:", [f"{beat_time:.2f}" for beat_time in calculate_beat_times(ideal_audio_file, user_bpm)])
             st.write("User Beat Times:", [f"{beat_time:.2f}" for beat_time in user_beat_times])
@@ -35,13 +49,12 @@ if user_audio_file is not None and user_bpm > 0:
             ax.set_title('Beat Time Instances')
             ax.grid()
 
-# Show the Matplotlib plot in the Streamlit app
+        # Show the Matplotlib plot in the Streamlit app
             st.pyplot(fig)
-            
+
             if np.allclose(calculate_beat_times(ideal_audio_file, user_bpm), user_beat_times, atol=0.05):
                 st.success("Beat times match the ideal audio!")
             else:
                 st.error("Beat times do not match the ideal audio.")
-
-        except Exception as e:
-            st.error(f"The file is not of correct BPM")
+    except:
+        st.error(f"The file is not of the correct BPM")
