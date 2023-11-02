@@ -3,7 +3,6 @@ import streamlit as st
 import librosa
 import numpy as np
 import matplotlib.pyplot as plt
-import functools 
 
 def play_audio(file):
     audio_bytes = open(file, "rb").read()
