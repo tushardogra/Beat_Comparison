@@ -10,7 +10,8 @@ def play_audio(file):
 
 st.title("Beat Comparison App")
 
-user_bpm = st.number_input("Enter the BPM of your audio", min_value=30, step=5, key="user_bpm_input")
+bpm_options = [30, 35, 40, 45, 50, 60, 120, 240, 480]
+user_bpm = st.selectbox("Select the BPM of your audio", options=bpm_options, index=5)
 wav_audio_data = st_audiorec()
 
 if wav_audio_data is not None:
