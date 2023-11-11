@@ -10,8 +10,16 @@ def play_audio(file):
 
 st.title("Beat Comparison App")
 
-bpm_options = [30, 35, 40, 45, 50, 60, 120, 240, 480]
-user_bpm = st.selectbox("Select the BPM of your audio", options=bpm_options, index=5)
+bpm_options = ["Half beat (120 BPM)", "Full beat (60 BPM)", "Quarter beat (240 BPM)"]
+selected_option = st.selectbox("Select the beat type", options=bpm_options, index=1)
+
+# Map the selected option to the corresponding BPM
+if selected_option == "Half beat (120 BPM)":
+    user_bpm = 120
+elif selected_option == "Full beat (60 BPM)":
+    user_bpm = 60
+elif selected_option == "Quarter beat (240 BPM)":
+    user_bpm = 240
 wav_audio_data = st_audiorec()
 
 if wav_audio_data is not None:
